@@ -12,17 +12,18 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.2.3',
+    version='0.2.4',
 
     description='Deep learning model converter, visualization and editor.',
     long_description=long_description,
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='https://github.com/Microsoft/MMdnn',
 
     # Author details
-    author = 'Cheng CHEN, System Research Group, Microsoft Research Asia',
-    author_email='cncng@microsoft.com',
+    author = 'System Research Group, Microsoft Research Asia',
+    author_email='mmdnn_feedback@microsoft.com',
 
     # Choose your license
     license='MIT',
@@ -76,8 +77,8 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'numpy >= 1.11.0',
-        'protobuf >= 3.1.0',
+        'numpy >= 1.15.0',
+        'protobuf >= 3.6.0',
         'six >= 1.10.0',
         'pillow >= 3.1.0',
     ],

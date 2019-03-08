@@ -41,6 +41,8 @@ def assign_attr_value(attr, val):
             attr.list.f.extend(val)
         else:
             raise NotImplementedError('AttrValue cannot be of list[{}].'.format(val[0]))
+    elif isinstance(val, np.ndarray):
+        assign_attr_value(attr, val.tolist())
     else:
         raise NotImplementedError('AttrValue cannot be of %s' % type(val))
 
@@ -175,7 +177,7 @@ def _multi_thread_download(url, file_name, file_size, thread_count):
     return file_name
 
 
-def download_file(url, directory='./', local_fname=None, force_write=False, auto_unzip=False):
+def download_file(url, directory='./', local_fname=None, force_write=False, auto_unzip=False, compre_type=''):
     """Download the data from source url, unless it's already here.
 
     Args:

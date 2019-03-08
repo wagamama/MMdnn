@@ -1,27 +1,12 @@
 # ![MMdnn](https://ndqzpq.dm2304.livefilestore.com/y4mF9ON1vKrSy0ew9dM3Fw6KAvLzQza2nL9JiMSIfgfKLbqJPvuxwOC2VIur_Ycz4TvVpkibMkvKXrX-N9QOkyh0AaUW4qhWDak8cyM0UoLLxc57apyhfDaxflLlZrGqiJgzn1ztsxiaZMzglaIMhoo8kjPuZ5-vY7yoWXqJuhC1BDHOwgNPwIgzpxV1H4k1oQzmewThpAJ_w_fUHzianZtMw?width=35&height=35&cropmode=none) MMdnn
 
+[![PyPi Version](https://img.shields.io/pypi/v/mmdnn.svg)](https://pypi.org/project/mmdnn/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Linux](https://travis-ci.org/Microsoft/MMdnn.svg?branch=master)](https://travis-ci.org/Microsoft/MMdnn)
 
-A comprehensive, cross-framework solution to convert, visualize and diagnosis deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for deep neural network.
+A comprehensive, cross-framework solution to convert, visualize and diagnose deep neural network models. The "MM" in MMdnn stands for model management and "dnn" is an acronym for the deep neural network.
 
-Typically people use deep neural network with following steps:
-
-```
---------------                                               --------------
-| Find model | --------------------------------------------> | Deployment |
---------------      |                                        --------------
-                    |                                            ^    ^
-                    |        --------------                      |    |
-                    -------> | Conversion | ----------------------    |
-                             --------------                           |
-                                   |                                  |
-                                   |           -----------            |
-                                   ----------> | Retrain | ------------
-                                               -----------
-```
-
-In MMdnn, we focus on helping user handle their work better.
+Major features
 
 - **Find model**
 
@@ -30,30 +15,42 @@ In MMdnn, we focus on helping user handle their work better.
 
 - <a href="#conversion">**Conversion**</a>
 
-  - We implement an universal convertor to convert DNN models between frameworks, which means you can train on one framework and deploy on another.
+  - We implement a universal converter to convert DNN models between frameworks, which means you can train on one framework and deploy on another.
 
 - **Retrain**
 
-  - In convertor, we can generate some training/inference code snippet to simplify the retrain/evaluate work.
+  - In the converter, we can generate some training/inference code snippet to simplify the retrain/evaluate work.
 
 - **Deployment**
 
-  - We provide some guidelines to help you deploy your models to other hardware platform.
+  - We provide some guidelines to help you deploy your models to another hardware platform.
     - [Android](https://github.com/Microsoft/MMdnn/wiki/Deploy-your-TensorFlow-Lite-Model-in-Android)
     - [Serving](https://github.com/Microsoft/MMdnn/wiki/Tensorflow-Serving-Via-Docker)
+    
+  - We provide a guide to help you accelerate inference with TensorRT.
+    - [TensorRT](https://github.com/Microsoft/MMdnn/wiki/Using-TensorRT-to-Accelerate-Inference)
+  
 
-This project is designed and developed by [Microsoft Research (MSR)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/). We also encourage researchers and students leverage this project to analysis DNN models and we welcome any new ideas to extend this project.
+## Related Projects
+[Microsoft Research Asia (MSRA)](https://www.microsoft.com/en-us/research/group/systems-research-group-asia/)
+and Microsoft Search Technology Center Asia (STCA)
+have released some projects to advance the state-of-art technology:
+* [Open Platform for AI (OpenPAI)](https://github.com/Microsoft/pai): an open source platform that provides complete AI model training and resource management capabilities.
+It is easy to extend and supports on-premise, cloud and hybrid environments in various scale.
+* [Neural Network Intelligence (NNI)](https://github.com/Microsoft/nni): an open source AutoML toolkit for neural architecture search and hyper-parameter tuning.
+
+We encourage researchers, developers and students to leverage such projects to boost their Deep Learning / AI productivity.
 
 ## Installation
 
 ### Install manually
 
-You can get stable version of MMdnn by
+You can get a stable version of MMdnn by
 
 ```bash
 pip install mmdnn
 ```
-
+And make sure to have [Python](https://www.python.org/) installed
 or you can try the newest version by
 
 ```bash
@@ -62,7 +59,8 @@ pip install -U git+https://github.com/Microsoft/MMdnn.git@master
 
 ### Install with docker image
 
-MMdnn provides a docker image, which packaged mmdnn, deep learning frameworks we supported and other dependencies in one image. You can easily get the image in several steps:
+MMdnn provides a docker image, which packages MMdnn and Deep Learning frameworks that we support as well as other dependencies.
+You can easily try the image with the following steps:
 
 1. Install Docker Community Edition(CE)
 
@@ -73,7 +71,7 @@ MMdnn provides a docker image, which packaged mmdnn, deep learning frameworks we
     docker pull mmdnn/mmdnn:cpu.small
     ```
 
-1. Run image in interactive mode
+1. Run image in an interactive mode
 
     ```bash
     docker run -it mmdnn/mmdnn:cpu.small
@@ -87,7 +85,7 @@ Across the industry and academia, there are a number of existing frameworks avai
 
 <img src="https://raw.githubusercontent.com/Microsoft/MMdnn/master/docs/supported.jpg" width="633" >
 
-We provide a model converter to help developers convert models between frameworks, through an intermediate representation format.
+We provide a model converter to help developers convert models between frameworks through an intermediate representation format.
 
 #### Support frameworks
 
@@ -100,19 +98,19 @@ We provide a model converter to help developers convert models between framework
 - [MXNet](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/mxnet/README.md)
 - [ONNX](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/onnx/README.md) (Destination only)
 - [PyTorch](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/pytorch/README.md)
-- [Tensorflow](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/tensorflow/README.md) (Experimental) (Highly recommend you read the README of tensorflow firstly)
+- [TensorFlow](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/tensorflow/README.md) (Experimental) (We highly recommend you read the README of TensorFlow first)
 - [DarkNet](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/darknet/README.md) (Source only, Experiment)
 
 #### Tested models
 
 The model conversion between currently supported frameworks is tested on some **ImageNet** models.
 
-Models | Caffe | Keras | Tensorflow | CNTK | MXNet | PyTorch  | CoreML | ONNX
+Models | Caffe | Keras | TensorFlow | CNTK | MXNet | PyTorch  | CoreML | ONNX
 :-----:|:-----:|:-----:|:----------:|:----:|:-----:|:--------:|:------:|:-----:|
-[VGG 19](http://arxiv.org/abs/1409.1556.pdf) | √ | √ | √ | √ | √ | √ | √ | √
-[Inception V1](http://arxiv.org/abs/1409.4842v1) | √ | √ | √ | √ | √ | √ | √ | √
-[Inception V3](http://arxiv.org/abs/1512.00567)  | √ | √ | √ | √ | √ | √ | √ | √
-[Inception V4](http://arxiv.org/abs/1512.00567)  | √ | √ | √ | o | √ | √ | √ | √
+[VGG 19](https://arxiv.org/abs/1409.1556.pdf) | √ | √ | √ | √ | √ | √ | √ | √
+[Inception V1](https://arxiv.org/abs/1409.4842v1) | √ | √ | √ | √ | √ | √ | √ | √
+[Inception V3](https://arxiv.org/abs/1512.00567)  | √ | √ | √ | √ | √ | √ | √ | √
+[Inception V4](https://arxiv.org/abs/1512.00567)  | √ | √ | √ | o | √ | √ | √ | √
 [ResNet V1](https://arxiv.org/abs/1512.03385)                               |   ×   |   √   |     √      |   o  |   √   |    √ | √ | √
 [ResNet V2](https://arxiv.org/abs/1603.05027)                               |   √   |   √   |     √      |   √  |   √   | √ | √ | √
 [MobileNet V1](https://arxiv.org/pdf/1704.04861.pdf)                        |   ×   |   √   |     √      |   o  |   √   |    √       | √ | √ | √
@@ -127,7 +125,7 @@ Yolo3                                                                       |   
 
 #### Usage
 
-One command to achieve the conversion. Use a TensorFlow **ResNet V2 152** to PyTorch as our example.
+One command to achieve the conversion. Using TensorFlow **ResNet V2 152** to PyTorch as our example.
 
 ```bash
 $ mmdownload -f tensorflow -n resnet_v2_152 -o ./
@@ -138,8 +136,8 @@ Done.
 
 #### On-going frameworks
 
-- Torch7 (help wants)
-- Chainer (help wants)
+- Torch7 (help wanted)
+- Chainer (help wanted)
 
 #### On-going Models
 
@@ -153,7 +151,7 @@ Done.
 
 ### <a name="visualization">Model Visualization</a>
 
-You can use the [MMdnn model visualizer](http://vis.mmdnn.com/) and submit your IR json file to visualize your model.  In order to run the commands below, you will need to install [requests](https://anaconda.org/anaconda/requests), [keras](https://anaconda.org/anaconda/keras), and [Tensorflow](https://anaconda.org/anaconda/tensorflow) using your favorite package manager.
+You can use the [MMdnn model visualizer](http://vis.mmdnn.com/) and submit your IR json file to visualize your model.  In order to run the commands below, you will need to install [requests](https://anaconda.org/anaconda/requests), [keras](https://anaconda.org/anaconda/keras), and [TensorFlow](https://anaconda.org/anaconda/tensorflow) using your favorite package manager.
 
 Use the [Keras "inception_v3" model](https://github.com/fchollet/deep-learning-models) as an example again.
 
@@ -163,7 +161,7 @@ Use the [Keras "inception_v3" model](https://github.com/fchollet/deep-learning-m
 $ mmdownload -f keras -n inception_v3
 ```
 
-2. Convert the pre-trained model files into intermediate representation
+2. Convert the pre-trained model files into an intermediate representation
 
 ```bash
 $ mmtoir -f keras -w imagenet_inception_v3.h5 -o keras_inception_v3
@@ -181,9 +179,9 @@ $ mmtoir -f keras -w imagenet_inception_v3.h5 -o keras_inception_v3
 
 - [Keras "inception V3" to CNTK](https://github.com/Microsoft/MMdnn/blob/master/docs/keras2cntk.md) and [related issue](https://github.com/Microsoft/MMdnn/issues/19)
 
-- [Tensorflow slim model "ResNet V2 152" to PyTorch](https://github.com/Microsoft/MMdnn/blob/master/docs/tf2pytorch.md)
+- [TensorFlow slim model "ResNet V2 152" to PyTorch](https://github.com/Microsoft/MMdnn/blob/master/docs/tf2pytorch.md)
 
-- [Mxnet model "LResNet50E-IR" to Tensorflow](https://github.com/Microsoft/MMdnn/issues/85) and [related issue](https://github.com/Microsoft/MMdnn/issues/135)
+- [Mxnet model "LResNet50E-IR" to TensorFlow](https://github.com/Microsoft/MMdnn/issues/85) and [related issue](https://github.com/Microsoft/MMdnn/issues/135)
 
 ### Users' Examples
 
@@ -191,19 +189,19 @@ $ mmtoir -f keras -w imagenet_inception_v3.h5 -o keras_inception_v3
 
 - [MXNet "ResNeXt" to Keras](https://github.com/Microsoft/MMdnn/issues/58)
 
-- [Tensorflow "ResNet-101" to PyTorch](https://github.com/Microsoft/MMdnn/issues/22)
+- [TensorFlow "ResNet-101" to PyTorch](https://github.com/Microsoft/MMdnn/issues/22)
 
-- [Tensorflow "mnist mlp model" to CNTK](https://github.com/Microsoft/MMdnn/issues/11)
+- [TensorFlow "mnist mlp model" to CNTK](https://github.com/Microsoft/MMdnn/issues/11)
 
-- [Tensorflow "Inception_v3" to MXNet](https://github.com/Microsoft/MMdnn/issues/30)
+- [TensorFlow "Inception_v3" to MXNet](https://github.com/Microsoft/MMdnn/issues/30)
 
-- [Caffe "voc-fcn" to Tensorflow](https://github.com/Microsoft/MMdnn/issues/29)
+- [Caffe "voc-fcn" to TensorFlow](https://github.com/Microsoft/MMdnn/issues/29)
 
-- [Caffe "AlexNet" to Tensorflow](https://github.com/Microsoft/MMdnn/issues/10)
+- [Caffe "AlexNet" to TensorFlow](https://github.com/Microsoft/MMdnn/issues/10)
 
-- [Caffe "inception_v4" to Tensorflow](https://github.com/Microsoft/MMdnn/issues/26)
+- [Caffe "inception_v4" to TensorFlow](https://github.com/Microsoft/MMdnn/issues/26)
 
-- [Caffe "VGG16_SOD" to Tensorflow](https://github.com/Microsoft/MMdnn/issues/27)
+- [Caffe "VGG16_SOD" to TensorFlow](https://github.com/Microsoft/MMdnn/issues/27)
 
 - [Caffe "SqueezeNet v1.1" to CNTK](https://github.com/Microsoft/MMdnn/issues/48)
 
@@ -221,11 +219,11 @@ Details are in [ops.txt](https://github.com/Microsoft/MMdnn/blob/master/mmdnn/co
 
 ### Frameworks
 
-We are working on other frameworks conversion and visualization, such as PyTorch, CoreML and so on. And more RNN related operators are investigating. Any contributions and suggestions are welcome! Details in [Contribution Guideline](https://github.com/Microsoft/MMdnn/wiki/Contribution-Guideline)
+We are working on other frameworks conversion and visualization, such as PyTorch, CoreML and so on. We're investigating more RNN related operators. Any contributions and suggestions are welcome! Details in [Contribution Guideline](https://github.com/Microsoft/MMdnn/wiki/Contribution-Guideline).
 
 ### License
 
-Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide

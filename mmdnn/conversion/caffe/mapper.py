@@ -10,7 +10,13 @@ from mmdnn.conversion.common.IR.graph_pb2 import TensorShape
 
 
 def get_handler_name(node_kind):
-    return node_kind.lower() if len(node_kind) <= 4 else get_lower_case(node_kind)
+    if node_kind is None:
+        return node_kind
+    else:
+        if len(node_kind) <= 4:
+            return node_kind.lower()
+        else:
+            return get_lower_case(node_kind)
 
 
 class NodeMapper(object):
@@ -254,7 +260,9 @@ class NodeMapper(object):
         operations = {0: 'Mul', 1: 'Add', 2: 'Max'}
         op_code = node.parameters.operation
         try:
-            return Node.create(operations[op_code])
+            kwargs = {}
+            cls._convert_output_shape(kwargs, node)
+            return Node.create(operations[op_code], **kwargs)
         except KeyError:
             raise ConversionError('Unknown elementwise operation: {}'.format(op_code))
 
@@ -278,4 +286,15 @@ class NodeMapper(object):
 
     @classmethod
     def map_flatten(cls, node):
-        return Node.create('Flatten')
+        return cls._add_flatten_layer(node)
+
+    @classmethod
+    def map_split(cls, node):
+        # skip the split node
+        return
+
+    @classmethod
+    def map_elu(cls, node):
+        kwargs = {}
+        cls._convert_output_shape(kwargs, node)
+        return Node.create('ELU', **kwargs)

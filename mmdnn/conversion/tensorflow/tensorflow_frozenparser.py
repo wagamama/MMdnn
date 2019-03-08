@@ -149,7 +149,7 @@ class TensorflowParser2(Parser):
                     x = tensorflow.placeholder(dtype)
 
                 input_map[in_nodes[i] + ':0'] = x
-
+           
             tensorflow.import_graph_def(model, name='', input_map=input_map)
 
         with tensorflow.Session(graph = g) as sess:
@@ -339,7 +339,29 @@ class TensorflowParser2(Parser):
         return False
 
 
+    def _add_constant_node(self, source_node):
+        parent_ids=range(len(source_node.in_edges))
+        for idx in parent_ids:
+            s = source_node.in_edges[idx]
+            parent_node = self.tf_graph.get_node(s)
+            if parent_node.type == 'Const':
+                self._rename_Const(parent_node)
+    
+    def _rename_Const(self, source_node):
+        IR_node = self._convert_identity_operation(source_node, end_idx=0, new_op='Constant') # Constant
+        value = source_node.get_attr('value')
+        if value.float_val:
+            value = value.float_val[0]
+        elif value.int_val:
+            value = value.int_val[0]
+        else:
+            value = tensor_util.MakeNdarray(value).tolist()
+        kwargs = {'value': value}
+        assign_IRnode_values(IR_node, kwargs)
+
+
     def gen_IR(self):
+
         for layer in self.src_graph.topological_sort:
             current_node = self.src_graph.get_node(layer)
 
@@ -347,12 +369,13 @@ class TensorflowParser2(Parser):
                 continue
 
             node_type = current_node.type
-
+            
             if hasattr(self, "rename_" + node_type):
+ 
                 func = getattr(self, "rename_" + node_type)
                 func(current_node)
             else:
-
+                
                 self.rename_UNKNOWN(current_node)
 
 
@@ -620,19 +643,8 @@ class TensorflowParser2(Parser):
         if len(scopes) >= 2:
             if scopes[-2] == "batchnorm" or scopes[-2].startswith("Assign"):
                 return
-
-        input_node = self.check_const(self.src_graph.get_parent(source_node.name, [1]))
-        if input_node:
-            tensor_content = input_node.get_attr('value')
-            IR_node = self._convert_identity_operation(source_node, start_idx=0, end_idx=1, new_op='Mul')
-        else:
-            input_node = self.check_const(self.src_graph.get_parent(source_node.name, [0]))
-            tensor_content = input_node.get_attr('value')
-            IR_node = self._convert_identity_operation(source_node, start_idx=1, end_idx=2, new_op='Mul')
-
-        W = tensor_util.MakeNdarray(tensor_content)
-
-        self.set_weight(source_node.name, 'weights', W)
+        self._add_constant_node(source_node)
+        self._convert_identity_operation(source_node)
 
 
     def rename_Add(self, source_node):
@@ -772,11 +784,29 @@ class TensorflowParser2(Parser):
 
 
     def rename_Gather(self, source_node):
-        IR_node = self._convert_identity_operation(source_node, new_op = 'Gather')
+        IR_node = self._convert_identity_operation(source_node, new_op='Embedding')
 
-        input_node_range = self.src_graph.get_parent(source_node.name, [1])
+        W = self.src_graph.get_parent(source_node.name, [0])
+        W = self.src_graph.get_parent(W.name, [0])
+
+        self.set_weight(source_node.name, "weights", self.ckpt_data[W.name])
+
+        kwargs = {
+            'input_dim' : self.ckpt_data[W.name].shape[0],
+            'output_dim' : self.ckpt_data[W.name].shape[1],
+            'mask_zero' : False
+        }
+        kwargs['axis'] = 0  # add default
+        assign_IRnode_values(IR_node, kwargs)
+
+        return IR_node
+    
+    def rename_GatherV2(self, source_node):
+        
+        IR_node = self.rename_Gather(source_node)
+
         kwargs = {}
-        kwargs['shape'] = self.tensor_shape_to_list(input_node_range.get_attr('_output_shapes'))[0]
+        kwargs['axis'] = source_node.layer.attr['axis'].i
         assign_IRnode_values(IR_node, kwargs)
 
 
@@ -983,11 +1013,12 @@ class TensorflowParser2(Parser):
 
     def rename_Transpose(self, source_node):
         IR_node = self._convert_identity_operation(source_node, end_idx=1, new_op = 'Transpose')
+        
         input_node_perm = self.get_parent(source_node.name, [1])
+        # input_node_perm = self.check_const(self.get_parent(source_node.name, [1], True))
         tensor_content = input_node_perm.get_attr('value')
         perm = tensor_util.MakeNdarray(tensor_content).tolist()
         assign_IRnode_values(IR_node, {'perm' : perm})
-
 
     def rename_GreaterEqual(self, source_node):
         IR_node = self._convert_identity_operation(source_node, end_idx=1, new_op = 'GreaterEqual')
@@ -1024,6 +1055,9 @@ class TensorflowParser2(Parser):
 
     def rename_FusedBatchNorm(self, source_node):
         scalenode = self.check_const(self.get_parent(source_node.name, [1], True))
+        if ':' in source_node.in_edges[1]: # ?
+            scalenode = None
+
         if scalenode:
             scale_value = scalenode.get_attr('value')
             IR_node = self._convert_identity_operation(source_node, end_idx=1, new_op = 'BatchNorm')
